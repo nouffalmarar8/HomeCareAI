@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SEHA Frailty Programme · Simple Compliance Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Naskh+Arabic:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#f4f6f4; --panel:#fff; --fg:#1c2430; --muted:#5e6a78; --line:#d9ded8;
+  --accent:#0f6e73; --accent-soft:#e2f0ef; --warn:#b4531b; --warn-soft:#fbeadf;
+  --ok:#2d7a3e; --ok-soft:#e3f1e5; --flag:#a83232; --flag-soft:#f8e2e2; --navy:#14263d;
+  --law:#3f4f9a; --law-soft:#e8ebf8;
+  --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace; --ar:"Noto Naskh Arabic","IBM Plex Sans",sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;margin:0;padding:16px}
+button{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:20px;margin:0;font-weight:600}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.note{font-size:12.5px;color:var(--muted)}
+.btn{font-weight:500;padding:8px 14px;border-radius:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--flag);border-color:var(--flag)}
+.btn:focus-visible,.tg:focus-visible,.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.law{font-family:var(--mono);font-size:11px;color:var(--law);background:var(--law-soft);border-radius:4px;padding:1px 6px;white-space:nowrap;display:inline-block}
+.light{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:8px 14px;border-radius:8px}
+.light i{width:14px;height:14px;border-radius:50%}
+.light.go{background:var(--ok-soft);color:#1f5a2c}.light.go i{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.light.no{background:var(--flag-soft);color:#7a1f1f}.light.no i{background:#c23b3b;box-shadow:0 0 8px #c23b3b}
+
+/* what-if bar */
+.bar{background:var(--navy);color:#e8eef2;border-radius:10px;padding:12px 16px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.bar .eyebrow{color:#9fb3c4}
+.bar .grp{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid #3d5a73;border-radius:6px;overflow:hidden}
+.seg button{background:transparent;color:#cfdbe5;border:0;padding:7px 12px;font-size:13.5px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#e2f0ef;color:var(--navy);font-weight:600}
+.seg button.bad[aria-pressed="true"]{background:var(--flag-soft);color:#7a1f1f}
+.bar .sp{margin-left:auto}
+
+.cols{display:grid;grid-template-columns:320px minmax(0,1fr);gap:12px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card h2{font-size:15px;margin:0 0 2px;font-weight:600}
+
+/* phone */
+.phone{border:8px solid #1f2a37;border-radius:26px;overflow:hidden;background:#fff;margin-top:10px}
+.phone .top{background:var(--accent);color:#fff;padding:10px 14px;font-weight:600}
+.phone .in{padding:12px;display:grid;gap:10px}
+.row{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+.row .t{font-weight:600;font-size:14px}
+.row .a{font-family:var(--ar);font-size:14px;color:var(--muted);direction:rtl;text-align:left;grid-column:1}
+.row .d{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.row.lock{background:#f7f8f6}
+.tg{width:46px;height:26px;border-radius:13px;border:0;background:#c5ccd3;position:relative;cursor:pointer;grid-row:1/3;grid-column:2;transition:background .15s}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.tg[aria-checked="true"]{background:var(--ok)}
+.tg[aria-checked="true"]::after{left:23px}
+.pill{font-size:11.5px;font-weight:600;border-radius:10px;padding:2px 8px;background:var(--ok-soft);color:#1f5a2c;grid-row:1/3;grid-column:2}
+.msg{border-radius:10px;background:var(--accent-soft);padding:10px 12px;font-size:13.5px}
+.msg .ar{font-family:var(--ar);direction:rtl;text-align:right;font-size:15px;line-height:1.8;margin-bottom:6px}
+.msg .en{color:#34424f}
+.empty{font-size:12.5px;color:var(--muted);text-align:center;padding:8px}
+
+/* pipeline */
+.steps{display:grid;gap:8px;margin-top:10px}
+.step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;border:1px solid var(--line);border-left:5px solid #c5ccd3;border-radius:8px;padding:10px 12px;background:#fff;transition:border-color .2s,background .2s}
+.step .n{width:28px;height:28px;border-radius:50%;background:#e9edf0;display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--muted)}
+.step .hd{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.step .tt{font-weight:600}
+.step .sem{font-size:11px;color:var(--muted)}
+.step .st{font-size:14px;margin-top:2px}
+.step .laws{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.step.ok{border-left-color:var(--ok)}.step.ok .n{background:var(--ok-soft);color:var(--ok)}
+.step.stop{border-left-color:#c23b3b;background:#fdf5f5}.step.stop .n{background:var(--flag-soft);color:var(--flag)}.step.stop .st{color:var(--flag);font-weight:600}
+.step.warn{border-left-color:var(--warn);background:#fffaf5}.step.warn .n{background:var(--warn-soft);color:var(--warn)}
+.step.wait{opacity:.6}
+.live{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.score{font-family:var(--mono);font-size:26px;font-weight:600}
+.score.hi{color:var(--flag)}
+.draft{border:1px dashed var(--line);border-radius:6px;padding:8px 10px;font-size:13.5px;margin-top:6px;background:#fbfcfb}
+.draft mark{background:var(--flag-soft);color:#7a1f1f;font-weight:600;padding:0 3px;border-radius:3px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* explain */
+.why{border-radius:10px;padding:14px 16px;background:var(--accent-soft);border:1px solid #bfdcda;display:grid;gap:4px}
+.why.stop{background:var(--flag-soft);border-color:#e7b9b9}
+.why.warn{background:var(--warn-soft);border-color:#eccdb5}
+.why .big{font-size:17px;font-weight:600}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.facts .card{padding:12px}
+.facts b{display:block;margin-bottom:3px}
+.facts .v{font-size:13.5px}
+.facts .laws{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap}
+@media(max-width:860px){.cols{grid-template-columns:1fr}.facts{grid-template-columns:1fr}.bar .sp{margin-left:0}}
+@keyframes pop{from{transform:scale(.97);opacity:.5}to{transform:none;opacity:1}}
+.why.flash{animation:pop .35s}
+@media(prefers-reduced-motion:reduce){.why.flash{animation:none}.tg,.tg::after{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">INS646 · Seminars 1 → 2 → 3 · SEHA Home Care</div>
+      <h1>One patient, one message, and the laws that decide if it can be sent</h1>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="note">Illustrative patient and values</span>
+      <button class="btn" data-act="reset">Restart</button>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="grp"><span class="eyebrow">Where is the AI hosted?</span>
+      <span class="seg" id="host"></span></div>
+    <div class="grp"><span class="eyebrow">Attack</span>
+      <span class="seg" id="attack"></span></div>
+    <div class="grp sp"><span class="eyebrow">Pilot</span><span id="light"></span></div>
+  </div>
+
+  <div class="why" id="why" aria-live="polite"></div>
+
+  <div class="cols">
+    <div class="card">
+      <h2>Patient's phone</h2>
+      <div class="note">Mariam S., 79, Abu Dhabi. She decides, in Arabic or English.</div>
+      <div class="phone">
+        <div class="top">SEHA Home Care</div>
+        <div class="in" id="phone"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>What the system does</h2>
+      <div class="note">Seminar 1 predicts. Seminar 2 drafts. Seminar 3 puts a rule on every step.</div>
+      <div class="steps" id="steps"></div>
+    </div>
+  </div>
+
+  <div class="facts">
+    <div class="card"><b>How long data is kept</b><div class="v">Readings and prompts 90 days · scores 2 years · audit logs 7 years · clinical record 25+ years</div><div class="laws"><span class="law">PDPL Art. 5</span><span class="law">Fed. Law 2/2019 Art. 20</span></div></div>
+    <div class="card"><b>If there is a breach</b><div class="v">Contain in 2 h · assess in 4 h · escalate in 24 h · notify within 72 h (internal target)</div><div class="laws"><span class="law">PDPL Art. 9</span><span class="law">ADHICS V2</span></div></div>
+    <div class="card"><b>Who is responsible</b><div class="v">SEHA is the controller. WHOOP and Google Cloud are processors. The DPO signs the go/no-go; the CISO owns security.</div><div class="laws"><span class="law">PDPL Arts. 7–8</span><span class="law">PDPL Arts. 10–11</span></div></div>
+  </div>
+</div>
+
+<script>
+const THRESH=0.6;
+const MSG={
+  ar:"لاحظ فريق الرعاية أنكِ تمشين أقل هذا الأسبوع. ستزورك ممرضة خلال هذا الأسبوع. اتصلي بخط الرعاية المنزلية إذا سقطتِ أو شعرتِ بدوار. أُعدّت هذه الرسالة بمساعدة الذكاء الاصطناعي وراجعها فريق الرعاية.",
+  en:"Your care team noticed you have been walking less this week. A nurse will visit you this week. Call the home care line if you fall or feel dizzy. This message was prepared with AI support and reviewed by your care team."
+};
+const DRAFT="Your care team noticed you have been walking less this week. A nurse will visit you this week. Call the home care line if you fall or feel dizzy.";
+const BAD="You do not need a nurse visit.";
+let S, flash=false;
+const L=(...a)=>a.map(x=>`<span class="law">${x}</span>`).join("");
+
+function init(){
+  S={cw:true,cai:true,host:"uae",attack:false,day:0,steps:[],score:.45,alerted:false,decision:null,inbox:false,
+     why:["ok","Everything is switched on and hosted in the UAE.","Watch the risk score climb. When it reaches 0.6, the clinician gets an alert and the AI drafts a message.",["PDPL Art. 6","Fed. Law 2/2019 Art. 13"]]};
+  for(S.day=-14;S.day<0;)reading();
+}
+function reading(){
+  S.day++;
+  const base=3100-70*Math.min(22,Math.max(0,S.day)), noise=(Math.sin(S.day*2.3)+Math.sin(S.day*.9))*110;
+  S.steps.push(Math.max(1500,Math.round(base+noise)));
+  if(S.steps.length>30)S.steps.shift();
+}
+function say(kind,big,small,laws){S.why=[kind,big,small,laws];flash=true;}
+
+/* what stops the draft, in order */
+function block(){
+  if(!S.alerted)return "noalert";
+  if(!S.cai)return "noai";
+  if(S.host==="abroad")return "host";
+  if(S.attack)return "attack";
+  return null;
+}
+function spark(a){
+  const w=150,h=30,mx=Math.max(...a),mn=Math.min(...a),r=mx-mn||1;
+  const pts=a.map((v,i)=>`${(i/(a.length-1)*w).toFixed(1)},${(h-3-(v-mn)/r*(h-6)).toFixed(1)}`).join(" ");
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Daily steps trend"><polyline points="${pts}" fill="none" stroke="${S.cw?"#0f6e73":"#a8b0b8"}" stroke-width="1.8"/></svg>`;
+}
+function step(n,cls,title,sem,status,laws,extra){
+  return `<div class="step ${cls}"><div class="n">${n}</div><div><div class="hd"><span class="tt">${title}</span><span class="sem">${sem}</span></div><div class="st">${status}</div>${extra||""}<div class="laws">${L(...laws)}</div></div></div>`;
+}
+function render(){
+  const b=block(), go=S.host!=="abroad";
+  document.getElementById("host").innerHTML=[["uae","In the UAE",""],["abroad","Abroad, no approval","bad"],["doh","Abroad + DoH approval",""]].map(([v,l,c])=>`<button class="${c}" data-act="host" data-v="${v}" aria-pressed="${S.host===v}">${l}</button>`).join("");
+  document.getElementById("attack").innerHTML=[["0","Off",""],["1","Prompt injection","bad"]].map(([v,l,c])=>`<button class="${c}" data-act="attack" data-v="${v}" aria-pressed="${(S.attack?"1":"0")===v}">${l}</button>`).join("");
+  document.getElementById("light").innerHTML=`<span class="light ${go?"go":"no"}"><i></i>${go?"GO, with conditions":"NO-GO"}</span>`;
+  const [k,big,small,laws]=S.why, w=document.getElementById("why");
+  w.className="why "+(k==="ok"?"":k)+(flash?" flash":"");flash=false;
+  w.innerHTML=`<div class="big">${big}</div><div>${small}</div><div>${L(...laws)}</div>`;
+
+  document.getElementById("phone").innerHTML=`
+    <div class="row lock"><span class="t">Usual home care</span><span class="pill">Always on</span><span class="a">الرعاية المنزلية المعتادة</span><span class="d">Never depends on a yes.</span></div>
+    <div class="row"><span class="t">Wearable data</span><button class="tg" role="switch" aria-checked="${S.cw}" aria-label="Wearable data consent" data-act="cw"></button><span class="a">بيانات السوار</span><span class="d">Steps, sleep, heart rate, HRV. Nothing else.</span></div>
+    <div class="row"><span class="t">AI assistant</span><button class="tg" role="switch" aria-checked="${S.cai}" aria-label="AI assistant consent" data-act="cai"></button><span class="a">المساعد الذكي</span><span class="d">Helps the clinician draft my messages.</span></div>
+    <div class="eyebrow">Messages</div>
+    ${S.inbox?`<div class="msg"><div class="ar">${MSG.ar}</div><div class="en">${MSG.en}</div></div>`:`<div class="empty">No messages yet.</div>`}`;
+
+  const hi=S.score>=THRESH;
+  let h="";
+  h+=step(1,S.cw?"ok":"stop","Wearable sends 4 signals","",S.cw?`Streaming · <span id="day">day ${S.day}</span>`:"Stopped. Consent withdrawn; device collected within 5 working days.",["PDPL Art. 6","PDPL Art. 5"],`<div class="live"><span id="spark">${spark(S.steps)}</span><span class="note">daily steps <b id="stepv" style="font-family:var(--mono)">${S.steps.at(-1).toLocaleString()}</b></span></div>`);
+  h+=step(2,S.alerted?"warn":S.cw?"ok":"wait","Risk score","Seminar 1",S.alerted?"Alert sent to the clinician. The score is an estimate, not a diagnosis.":S.cw?"Below 0.6. No alert yet.":"Frozen at the last reading. No new alerts.",["PDPL Art. 18"],`<div class="live"><span class="score ${hi?"hi":""}" id="score">${S.score.toFixed(2)}</span><span class="note">alert at ${THRESH} or more</span></div>`);
+  // 3 draft
+  if(b==="noalert")h+=step(3,"wait","AI drafts a message","Seminar 2","Waiting for an alert.",["PDPL Art. 6","Fed. Law 2/2019 Art. 13"]);
+  else if(b==="noai")h+=step(3,"stop","AI drafts a message","Seminar 2","Skipped. Mariam said no to the AI assistant.",["PDPL Art. 6"]);
+  else if(b==="host")h+=step(3,"stop","AI drafts a message","Seminar 2","Not sent to the model. Health data cannot leave the UAE without DoH approval.",["Fed. Law 2/2019 Art. 13"]);
+  else h+=step(3,S.attack?"warn":"ok","AI drafts a message","Seminar 2",S.attack?"Drafted, but a poisoned document was retrieved with the SEHA documents.":"Drafted from approved SEHA documents. No name or ID in the prompt.",["PDPL Art. 5","Fed. Law 2/2019 Art. 13"],`<div class="draft">${DRAFT}${S.attack?` <mark>${BAD}</mark>`:""}</div>`);
+  // 4 gate 1
+  if(b==="noalert"||b==="noai"||b==="host")h+=step(4,"wait","Safety check","Gate 1","Nothing to check.",["OWASP LLM01","PDPL Art. 20"]);
+  else if(b==="attack")h+=step(4,"stop","Safety check","Gate 1","BLOCKED. One sentence has no source: a poisoned document told the model what to say.",["OWASP LLM01","PDPL Art. 20"]);
+  else h+=step(4,"ok","Safety check","Gate 1","Passed. Every sentence traces to a source; no identifiers.",["OWASP LLM01","PDPL Art. 20"]);
+  // 5 gate 2
+  if(b==="noai")h+=step(5,"ok","Clinician decides","Gate 2","The clinician writes to Mariam without AI. Same care, same follow-up.",["PDPL Art. 18"]);
+  else if(b==="attack")h+=step(5,"warn","Clinician decides","Gate 2","The draft never reaches the clinician. The CISO is alerted.",["ADHICS V2"]);
+  else if(b)h+=step(5,"wait","Clinician decides","Gate 2","Nothing reaches the patient without a clinician.",["PDPL Art. 18"]);
+  else h+=step(5,S.decision?"ok":"warn","Clinician decides","Gate 2",S.decision==="approved"?"Approved and sent. The decision is logged.":S.decision==="discarded"?"Discarded. The clinician writes the message; the decision is logged.":"Waiting for the clinician. Nothing is sent until a person approves.",["PDPL Art. 18"],S.decision?"":`<div class="acts"><button class="btn primary" data-act="decide" data-v="approved">Approve and send</button><button class="btn danger" data-act="decide" data-v="discarded">Discard</button></div>`);
+  document.getElementById("steps").innerHTML=h;
+}
+function live(){
+  const set=(id,v,html)=>{const e=document.getElementById(id);if(e)html?e.innerHTML=v:e.textContent=v;};
+  set("spark",spark(S.steps),true);set("stepv",S.steps.at(-1).toLocaleString());set("day","day "+S.day);
+  const sc=document.getElementById("score");if(sc){sc.textContent=S.score.toFixed(2);sc.className="score "+(S.score>=THRESH?"hi":"");}
+}
+setInterval(()=>{
+  if(!S.cw)return;
+  reading();
+  S.score=Math.min(.74,+(0.45+0.0125*S.day+Math.sin(S.day*1.7)*.004).toFixed(3));
+  if(!S.alerted&&S.score>=THRESH){S.alerted=true;S.score=Math.max(S.score,THRESH);afterAlert();render();}
+  else live();
+},1000);
+
+function afterAlert(){
+  const b=block();
+  if(b==="noai")say("warn","Alert raised. No AI draft, because Mariam said no to the AI assistant.","The clinician still gets the alert and writes to her by hand.",["PDPL Art. 6"]);
+  else if(b==="host")say("stop","Alert raised, but the draft is stopped.","The model is hosted abroad without DoH approval, so her data may not be sent.",["Fed. Law 2/2019 Art. 13"]);
+  else if(b==="attack")say("stop","Alert raised. The safety check blocked the draft.","A poisoned document tried to change the message.",["OWASP LLM01","PDPL Art. 20"]);
+  else say("warn","Score reached 0.6. The clinician is alerted and a draft is waiting.","Press “Approve and send”. Nothing reaches Mariam until a clinician decides.",["PDPL Art. 18"]);
+}
+const ACT={
+  reset:()=>init(),
+  cw:()=>{S.cw=!S.cw;
+    if(!S.cw)say("stop","Mariam withdrew wearable consent. The data stopped at once.","WHOOP is told to stop and the device is collected within 5 working days. Her usual care continues.",["PDPL Art. 6","PDPL Art. 4"]);
+    else say("ok","Mariam gave wearable consent again. Sync resumes.","Consent is recorded with date, language and notice version.",["PDPL Art. 6"]);},
+  cai:()=>{S.cai=!S.cai;S.decision=null;
+    if(!S.cai)say("warn","Mariam said no to the AI assistant. No draft is made for her.","The risk score still runs and the clinician writes by hand. Each consent is separate.",["PDPL Art. 6"]);
+    else say("ok","Mariam said yes to the AI assistant again.","Drafts resume, still checked by Gate 1 and approved by a clinician.",["PDPL Art. 6"]);},
+  host:v=>{if(S.host===v)return;S.host=v;S.decision=null;
+    if(v==="abroad")say("stop","NO-GO. Health data would leave the UAE without approval.","Google Cloud has no UAE region. Until hosting moves or DoH approves, the pilot cannot start.",["Fed. Law 2/2019 Art. 13","PDPL Arts. 22–23"]);
+    else if(v==="doh")say("ok","GO, with conditions. DoH approved this overseas flow.","Approval is needed for each flow, and the contract fixes the processing location.",["Fed. Law 2/2019 Art. 13"]);
+    else say("ok","GO, with conditions. Processing stays in the UAE.","This is the redesign the report recommends.",["Fed. Law 2/2019 Art. 13"]);},
+  attack:v=>{const on=v==="1";if(S.attack===on)return;S.attack=on;S.decision=null;
+    if(on)say("stop",S.alerted?"Attack caught. Gate 1 blocked the draft.":"A poisoned document is in the knowledge base.",S.alerted?"The fake “official directive” added a sentence with no source. It never reaches the clinician or the patient.":"When the alert comes, watch Gate 1 catch the sentence it adds.",["OWASP LLM01","PDPL Art. 20","ADHICS V2"]);
+    else say("ok","Poisoned document removed.","Only owner-approved documents can be retrieved.",["PDPL Art. 20"]);},
+  decide:v=>{if(S.decision||block())return;S.decision=v;
+    if(v==="approved"){S.inbox=true;say("ok","Approved. The message is on Mariam's phone, in Arabic and English.","It says AI helped and a clinician reviewed it.",["PDPL Art. 18"]);}
+    else say("warn","Discarded. Nothing was sent.","The clinician writes the message. Discard rates are audited so review stays real.",["PDPL Art. 18"]);}
+};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;ACT[b.dataset.act](b.dataset.v);render();});
+init();render();
+</script>
+</body>
+</html>
